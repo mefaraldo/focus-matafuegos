@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Matafuegos — Panel de Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --naranja: #E8593C;
+    --naranja-dark: #C04828;
+    --naranja-light: #FAECE7;
+    --amarillo-light: #FAEEDA;
+    --amarillo: #BA7517;
+    --verde-light: #EAF3DE;
+    --verde: #3B6D11;
+    --rojo: #C04828;
+    --bg: #F5F3EE;
+    --bg2: #ECEAE4;
+    --white: #FFFFFF;
+    --text: #1C1C1A;
+    --text2: #6B6960;
+    --text3: #A8A59E;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 220px;
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .logo-area {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--naranja);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .logo-icon svg { width: 20px; height: 20px; }
+
+  .logo-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 1px;
+  }
+
+  .nav {
+    padding: 16px 12px;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .15s;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: var(--naranja-light); color: var(--naranja); font-weight: 500; }
+  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--naranja);
+    color: white;
+    border-radius: 20px;
+    padding: 1px 7px;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 220px;
+    padding: 28px 32px;
+    min-height: 100vh;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .page-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: var(--white);
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .btn:hover { background: var(--bg); }
+  .btn.primary { background: var(--naranja); color: white; border-color: var(--naranja); }
+  .btn.primary:hover { background: var(--naranja-dark); border-color: var(--naranja-dark); }
+  .btn svg { width: 15px; height: 15px; }
+
+  /* METRICS */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .metric {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+
+  .metric-label {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 8px;
+  }
+
+  .metric-value {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .metric-value.danger { color: var(--rojo); }
+  .metric-value.warning { color: var(--amarillo); }
+  .metric-value.success { color: var(--verde); }
+  .metric-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+  /* CARDS */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title { font-size: 14px; font-weight: 600; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  thead th {
+    background: var(--bg);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .1s;
+    cursor: pointer;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+
+  td {
+    padding: 12px 16px;
+    color: var(--text);
+  }
+
+  .td-muted { color: var(--text2); }
+  .td-mono { font-family: 'DM Mono', monospace; font-size: 13px; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  .badge.vencido { background: var(--naranja-light); color: var(--rojo); }
+  .badge.vencido::before { background: var(--rojo); }
+  .badge.pendiente { background: var(--amarillo-light); color: var(--amarillo); }
+  .badge.pendiente::before { background: var(--amarillo); }
+  .badge.cobrado { background: var(--verde-light); color: var(--verde); }
+  .badge.cobrado::before { background: var(--verde); }
+
+  /* AVATAR */
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .client-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .client-cell-name { font-weight: 500; }
+  .client-cell-sub { font-size: 12px; color: var(--text3); }
+
+  /* SEARCH */
+  .search-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    color: var(--text3);
+  }
+
+  .search-input {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    padding: 9px 14px 9px 36px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+
+  .search-input:focus { border-color: var(--naranja); }
+
+  .filter-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: var(--white);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .chip:hover { border-color: var(--naranja); color: var(--naranja); }
+  .chip.active { background: var(--naranja); color: white; border-color: var(--naranja); }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    color: var(--text3);
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--naranja);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* VENCIMIENTOS */
+  .venc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .venc-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .venc-item.urgente { border-left: 3px solid var(--rojo); }
+  .venc-item.proximo { border-left: 3px solid var(--amarillo); }
+  .venc-item.ok { border-left: 3px solid var(--verde); }
+
+  .venc-name { font-size: 14px; font-weight: 500; }
+  .venc-detail { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .venc-days { font-size: 15px; font-weight: 600; font-family: 'DM Mono', monospace; text-align: right; }
+  .venc-days.urgente { color: var(--rojo); }
+  .venc-days.proximo { color: var(--amarillo); }
+  .venc-days.ok { color: var(--verde); }
+  .venc-fecha { font-size: 11px; color: var(--text3); text-align: right; }
+
+  /* GRID 2 col */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ALERT BANNER */
+  .alert-banner {
+    background: var(--naranja-light);
+    border: 1px solid rgba(232,89,60,0.2);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    color: var(--rojo);
+  }
+
+  .alert-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* EMPTY */
+  .empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 14px;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 60px; }
+    .logo-name, .logo-sub, .nav-label, .nav-item span, .nav-badge, .sidebar-footer { display: none; }
+    .main { margin-left: 60px; padding: 20px 16px; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .venc-grid { grid-template-columns: 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo-area">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2c0 6-6 8-6 14a6 6 0 0 0 12 0c0-6-6-8-6-14z"/>
+        <path d="M12 12c0 3-2 4-2 6a2 2 0 0 0 4 0c0-2-2-3-2-6z" fill="white" stroke="none"/>
+      </svg>
+    </div>
+    <div class="logo-name">Focus</div>
+    <div class="logo-sub">Matafuegos · Adrogué</div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('resumen')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Resumen</span>
+    </div>
+    <div class="nav-item" onclick="showPage('clientes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Clientes</span>
+    </div>
+    <div class="nav-item" onclick="showPage('cobros')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span>Cobros</span>
+      <span class="nav-badge" id="badge-cobros">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('vencimientos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Vencimientos</span>
+      <span class="nav-badge" id="badge-venc">0</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    Última actualización:<br>
+    <span id="last-update">cargando...</span>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- RESUMEN -->
+  <div class="page active" id="page-resumen">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Resumen</div>
+        <div class="page-sub" id="fecha-hoy"></div>
+      </div>
+      <button class="btn" onclick="loadData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Actualizar
+      </button>
+    </div>
+
+    <div id="alert-area"></div>
+
+    <div class="metrics" id="metrics-area">
+      <div class="metric"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="metric"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="metric"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="metric"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Deudas vencidas</div>
+          <button class="btn" onclick="showPage('cobros')">Ver todas</button>
+        </div>
+        <div id="resumen-vencidos"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Vencimientos próximos</div>
+          <button class="btn" onclick="showPage('vencimientos')">Ver todos</button>
+        </div>
+        <div id="resumen-vencimientos"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div class="page" id="page-clientes">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Clientes</div>
+        <div class="page-sub" id="clientes-count"></div>
+      </div>
+    </div>
+    <div class="search-row">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" type="text" placeholder="Buscar por nombre..." oninput="filterClientes(this.value)">
+      </div>
+    </div>
+    <div class="filter-chips" id="chips-clientes">
+      <div class="chip active" onclick="chipCliente(this,'todos')">Todos</div>
+      <div class="chip" onclick="chipCliente(this,'empresa')">Empresas</div>
+      <div class="chip" onclick="chipCliente(this,'particular')">Particulares</div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Tipo</th>
+              <th>Teléfono</th>
+              <th>Condición</th>
+              <th>Mat.</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-clientes">
+            <tr><td colspan="6"><div class="loading"><div class="spinner"></div> Cargando datos...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- COBROS -->
+  <div class="page" id="page-cobros">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Cobros</div>
+        <div class="page-sub" id="cobros-count"></div>
+      </div>
+    </div>
+    <div class="filter-chips" id="chips-cobros">
+      <div class="chip active" onclick="chipCobro(this,'todos')">Todos</div>
+      <div class="chip" onclick="chipCobro(this,'vencido')">Vencidos</div>
+      <div class="chip" onclick="chipCobro(this,'pendiente')">Pendientes</div>
+      <div class="chip" onclick="chipCobro(this,'cobrado')">Cobrados</div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Descripción</th>
+              <th>Fecha</th>
+              <th>Vence</th>
+              <th>Importe</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-cobros">
+            <tr><td colspan="6"><div class="loading"><div class="spinner"></div> Cargando datos...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENCIMIENTOS -->
+  <div class="page" id="page-vencimientos">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Vencimientos de matafuegos</div>
+        <div class="page-sub">Próximas recargas programadas</div>
+      </div>
+    </div>
+    <div class="venc-grid" id="venc-grid">
+      <div class="loading"><div class="spinner"></div> Cargando...</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// =============================================
+// CONFIGURACIÓN — solo cambiar el SHEET_ID
+// =============================================
+const SHEET_ID = '1QcMw4i1FpPYmZOO1CQGLyawHtCfITVvC';
+const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=`;
+
+// =============================================
+// ESTADO GLOBAL
+// =============================================
+let data = { clientes: [], servicios: [], vencimientos: [] };
+let filtroCliente = 'todos';
+let filtroCobro = 'todos';
+let searchCliente = '';
+
+// =============================================
+// NAVEGACIÓN
+// =============================================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  const pages = ['resumen','clientes','cobros','vencimientos'];
+  items[pages.indexOf(name)]?.classList.add('active');
+}
+
+// =============================================
+// PARSEAR CSV
+// =============================================
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/"/g,''));
+    return obj;
+  });
+}
+
+// =============================================
+// CARGAR DATOS
+// =============================================
+async function loadData() {
+  try {
+    document.getElementById('last-update').textContent = 'actualizando...';
+    const [r1, r2, r3] = await Promise.all([
+      fetch(BASE + 'Clientes').then(r => r.text()),
+      fetch(BASE + 'Servicios').then(r => r.text()),
+      fetch(BASE + 'Vencimientos_Matafuegos').then(r => r.text()),
+    ]);
+    data.clientes = parseCSV(r1);
+    data.servicios = parseCSV(r2);
+    data.vencimientos = parseCSV(r3);
+    document.getElementById('last-update').textContent = new Date().toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
+    renderAll();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('last-update').textContent = 'error al cargar';
+  }
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function fmtPeso(n) {
+  const num = parseInt(String(n).replace(/[^0-9]/g,'')) || 0;
+  return '$' + num.toLocaleString('es-AR');
+}
+
+function diasDesde(fecha) {
+  if (!fecha) return 0;
+  const d = new Date(fecha);
+  const hoy = new Date();
+  return Math.floor((hoy - d) / 86400000);
+}
+
+function diasHasta(fecha) {
+  if (!fecha) return 999;
+  const d = new Date(fecha);
+  const hoy = new Date();
+  return Math.floor((d - hoy) / 86400000);
+}
+
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+
+const COLORS = ['#FAECE7,#993C1D','#E1F5EE,#0F6E56','#E6F1FB,#185FA5','#FAEEDA,#854F0B','#EEEDFE,#3C3489','#FBEAF0,#993556'];
+function avatarColor(name) {
+  const i = name.charCodeAt(0) % COLORS.length;
+  const [bg, fg] = COLORS[i].split(',');
+  return { bg, fg };
+}
+
+// =============================================
+// RENDER RESUMEN
+// =============================================
+function renderResumen() {
+  const vencidos = data.servicios.filter(s => s.estado === 'vencido');
+  const pendientes = data.servicios.filter(s => s.estado === 'pendiente');
+  const cobrados = data.servicios.filter(s => s.estado === 'cobrado');
+
+  const totalDeuda = [...vencidos, ...pendientes].reduce((a,s) => a + (parseInt(s.importe)||0), 0);
+  const totalVencido = vencidos.reduce((a,s) => a + (parseInt(s.importe)||0), 0);
+  const totalPendiente = pendientes.reduce((a,s) => a + (parseInt(s.importe)||0), 0);
+  const totalCobrado = cobrados.reduce((a,s) => a + (parseInt(s.importe)||0), 0);
+
+  document.getElementById('metrics-area').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">Deuda total</div>
+      <div class="metric-value danger">${fmtPeso(totalDeuda)}</div>
+      <div class="metric-sub">${vencidos.length + pendientes.length} servicios pendientes</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Vencido</div>
+      <div class="metric-value danger">${fmtPeso(totalVencido)}</div>
+      <div class="metric-sub">${vencidos.length} facturas</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Por cobrar</div>
+      <div class="metric-value warning">${fmtPeso(totalPendiente)}</div>
+      <div class="metric-sub">${pendientes.length} facturas</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Cobrado</div>
+      <div class="metric-value success">${fmtPeso(totalCobrado)}</div>
+      <div class="metric-sub">${cobrados.length} servicios</div>
+    </div>
+  `;
+
+  // Alerta
+  const alertArea = document.getElementById('alert-area');
+  if (vencidos.length > 0) {
+    alertArea.innerHTML = `<div class="alert-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Tenés <strong>${vencidos.length} cobros vencidos</strong> por un total de <strong>${fmtPeso(totalVencido)}</strong>. Revisalos en la sección Cobros.
+    </div>`;
+  } else {
+    alertArea.innerHTML = '';
+  }
+
+  // Resumen vencidos
+  const topVencidos = vencidos.slice(0,4);
+  document.getElementById('resumen-vencidos').innerHTML = topVencidos.length ? `
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      ${topVencidos.map(s => `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:11px 16px;font-weight:500;">${s.cliente_nombre}</td>
+          <td style="padding:11px 16px;text-align:right;font-family:'DM Mono',monospace;color:var(--rojo);">${fmtPeso(s.importe)}</td>
+          <td style="padding:11px 16px;"><span class="badge vencido">vencido</span></td>
+        </tr>`).join('')}
+    </table>` : `<div class="empty">Sin cobros vencidos 🎉</div>`;
+
+  // Resumen vencimientos
+  const proxVenc = data.vencimientos
+    .map(v => ({ ...v, dias: diasHasta(v.proxima_fecha) }))
+    .filter(v => v.dias <= 60)
+    .sort((a,b) => a.dias - b.dias)
+    .slice(0,4);
+
+  document.getElementById('resumen-vencimientos').innerHTML = proxVenc.length ? `
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      ${proxVenc.map(v => {
+        const cls = v.dias < 0 ? 'vencido' : v.dias <= 30 ? 'pendiente' : 'cobrado';
+        const label = v.dias < 0 ? `vencido ${Math.abs(v.dias)}d` : `${v.dias} días`;
+        return `<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:11px 16px;font-weight:500;">${v.cliente_nombre}</td>
+          <td style="padding:11px 16px;color:var(--text3);font-size:12px;">${v.cantidad} mat.</td>
+          <td style="padding:11px 16px;"><span class="badge ${cls}">${label}</span></td>
+        </tr>`;
+      }).join('')}
+    </table>` : `<div class="empty">Sin vencimientos próximos</div>`;
+}
+
+// =============================================
+// RENDER CLIENTES
+// =============================================
+function renderClientes() {
+  let lista = data.clientes;
+  if (filtroCliente !== 'todos') lista = lista.filter(c => c.tipo === filtroCliente);
+  if (searchCliente) lista = lista.filter(c => c.nombre.toLowerCase().includes(searchCliente.toLowerCase()));
+
+  document.getElementById('clientes-count').textContent = `${lista.length} clientes`;
+
+  const tbody = document.getElementById('tbody-clientes');
+  if (!lista.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty">Sin resultados</div></td></tr>`; return; }
+
+  tbody.innerHTML = lista.map(c => {
+    const { bg, fg } = avatarColor(c.nombre);
+    return `<tr>
+      <td><div class="client-cell">
+        <div class="avatar" style="background:${bg};color:${fg};">${initials(c.nombre)}</div>
+        <div><div class="client-cell-name">${c.nombre}</div><div class="client-cell-sub">${c.email && c.email !== '-' ? c.email : ''}</div></div>
+      </div></td>
+      <td class="td-muted">${c.tipo}</td>
+      <td class="td-muted">${c.telefono}</td>
+      <td class="td-muted">${c.condicion_pago}</td>
+      <td class="td-mono">${c.cant_matafuegos}</td>
+      <td class="td-muted" style="font-size:12px;">${c.notas}</td>
+    </tr>`;
+  }).join('');
+}
+
+// =============================================
+// RENDER COBROS
+// =============================================
+function renderCobros() {
+  let lista = data.servicios;
+  if (filtroCobro !== 'todos') lista = lista.filter(s => s.estado === filtroCobro);
+
+  const vencidos = lista.filter(s => s.estado === 'vencido').length;
+  document.getElementById('cobros-count').textContent = `${lista.length} servicios${vencidos ? ` · ${vencidos} vencidos` : ''}`;
+  document.getElementById('badge-cobros').textContent = data.servicios.filter(s => s.estado === 'vencido').length;
+
+  const tbody = document.getElementById('tbody-cobros');
+  if (!lista.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty">Sin resultados</div></td></tr>`; return; }
+
+  tbody.innerHTML = lista.map(s => `
+    <tr>
+      <td style="font-weight:500;">${s.cliente_nombre}</td>
+      <td class="td-muted" style="font-size:13px;">${s.descripcion}</td>
+      <td class="td-muted">${s.fecha_servicio}</td>
+      <td class="td-muted">${s.fecha_venc_cobro}</td>
+      <td class="td-mono" style="font-weight:500;">${fmtPeso(s.importe)}</td>
+      <td><span class="badge ${s.estado}">${s.estado}</span></td>
+    </tr>`).join('');
+}
+
+// =============================================
+// RENDER VENCIMIENTOS
+// =============================================
+function renderVencimientos() {
+  const lista = data.vencimientos
+    .map(v => ({ ...v, dias: diasHasta(v.proxima_fecha) }))
+    .sort((a,b) => a.dias - b.dias);
+
+  const urgentes = lista.filter(v => v.dias <= 30).length;
+  document.getElementById('badge-venc').textContent = urgentes;
+
+  const grid = document.getElementById('venc-grid');
+  if (!lista.length) { grid.innerHTML = `<div class="empty">Sin vencimientos cargados</div>`; return; }
+
+  grid.innerHTML = lista.map(v => {
+    const cls = v.dias < 0 ? 'urgente' : v.dias <= 30 ? 'urgente' : v.dias <= 60 ? 'proximo' : 'ok';
+    const label = v.dias < 0 ? `Vencido hace ${Math.abs(v.dias)} días` : v.dias === 0 ? 'Vence hoy' : `${v.dias} días`;
+    return `<div class="venc-item ${cls}">
+      <div>
+        <div class="venc-name">${v.cliente_nombre}</div>
+        <div class="venc-detail">${v.cantidad} matafuegos · ${v.frecuencia}</div>
+      </div>
+      <div>
+        <div class="venc-days ${cls}">${label}</div>
+        <div class="venc-fecha">${v.proxima_fecha}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// FILTROS
+// =============================================
+function filterClientes(val) { searchCliente = val; renderClientes(); }
+
+function chipCliente(el, val) {
+  document.querySelectorAll('#chips-clientes .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroCliente = val;
+  renderClientes();
+}
+
+function chipCobro(el, val) {
+  document.querySelectorAll('#chips-cobros .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroCobro = val;
+  renderCobros();
+}
+
+// =============================================
+// RENDER ALL
+// =============================================
+function renderAll() {
+  renderResumen();
+  renderClientes();
+  renderCobros();
+  renderVencimientos();
+}
+
+// =============================================
+// INIT
+// =============================================
+document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-AR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+loadData();
+</script>
+</body>
+</html>
