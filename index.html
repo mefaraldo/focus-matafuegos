@@ -636,7 +636,10 @@
 // CONFIGURACIÓN — solo cambiar el SHEET_ID
 // =============================================
 const SHEET_ID = '1QcMw4i1FpPYmZOO1CQGLyawHtCfITVvC';
-const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=`;
+const GID_CLIENTES = '2012375511';
+const GID_SERVICIOS = '816110800';
+const GID_VENCIMIENTOS = '405165756';
+const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=`;
 
 // =============================================
 // ESTADO GLOBAL
@@ -686,9 +689,9 @@ async function loadData() {
   try {
     document.getElementById('last-update').textContent = 'actualizando...';
     const [r1, r2, r3] = await Promise.all([
-      fetch(BASE + 'Clientes').then(r => r.text()),
-      fetch(BASE + 'Servicios').then(r => r.text()),
-      fetch(BASE + 'Vencimientos_Matafuegos').then(r => r.text()),
+      fetch(BASE_URL + GID_CLIENTES).then(r => r.text()),
+      fetch(BASE_URL + GID_SERVICIOS).then(r => r.text()),
+      fetch(BASE_URL + GID_VENCIMIENTOS).then(r => r.text()),
     ]);
     data.clientes = parseCSV(r1);
     data.servicios = parseCSV(r2);
