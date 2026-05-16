@@ -707,9 +707,16 @@ async function loadData() {
 // =============================================
 // HELPERS
 // =============================================
+function parsePeso(n) {
+  let s = String(n).replace(/[^0-9.,]/g,'');
+  if (s.includes('.') && !s.includes(',')) s = s.replace(/\./g,'');
+  else if (s.includes(',')) s = s.replace(/\./g,'').replace(',','.');
+  return parseFloat(s) || 0;
+}
+
 function fmtPeso(n) {
-  const num = parseInt(String(n).replace(/[^0-9]/g,'')) || 0;
-  return '$' + num.toLocaleString('es-AR');
+  const num = parsePeso(n);
+  return '$' + Math.round(num).toLocaleString('es-AR');
 }
 
 function diasDesde(fecha) {
@@ -745,10 +752,10 @@ function renderResumen() {
   const pendientes = data.servicios.filter(s => s.estado === 'pendiente');
   const cobrados = data.servicios.filter(s => s.estado === 'cobrado');
 
-  const totalDeuda = [...vencidos, ...pendientes].reduce((a,s) => a + (parseInt(s.importe)||0), 0);
-  const totalVencido = vencidos.reduce((a,s) => a + (parseInt(s.importe)||0), 0);
-  const totalPendiente = pendientes.reduce((a,s) => a + (parseInt(s.importe)||0), 0);
-  const totalCobrado = cobrados.reduce((a,s) => a + (parseInt(s.importe)||0), 0);
+  const totalDeuda = [...vencidos, ...pendientes].reduce((a,s) => a + parsePeso(s.importe), 0);
+  const totalVencido = vencidos.reduce((a,s) => a + parsePeso(s.importe), 0);
+  const totalPendiente = pendientes.reduce((a,s) => a + parsePeso(s.importe), 0);
+  const totalCobrado = cobrados.reduce((a,s) => a + parsePeso(s.importe), 0);
 
   document.getElementById('metrics-area').innerHTML = `
     <div class="metric">
