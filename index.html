@@ -7,20 +7,20 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --naranja: #E8593C;
-    --naranja-dark: #C04828;
-    --naranja-light: #FAECE7;
+    --naranja: #1B4B8A;
+    --naranja-dark: #123570;
+    --naranja-light: #E6EDF7;
     --amarillo-light: #FAEEDA;
     --amarillo: #BA7517;
     --verde-light: #EAF3DE;
     --verde: #3B6D11;
     --rojo: #C04828;
-    --bg: #F5F3EE;
-    --bg2: #ECEAE4;
+    --bg: #F2F4F7;
+    --bg2: #E4E8EF;
     --white: #FFFFFF;
-    --text: #1C1C1A;
-    --text2: #6B6960;
-    --text3: #A8A59E;
+    --text: #0F1C2E;
+    --text2: #4A5568;
+    --text3: #8A95A3;
     --border: rgba(0,0,0,0.08);
     --border2: rgba(0,0,0,0.14);
     --radius: 12px;
@@ -55,7 +55,7 @@
 
   .logo-icon {
     width: 38px; height: 38px;
-    background: var(--naranja);
+    background: #1B4B8A;
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 10px;
@@ -106,14 +106,14 @@
   }
 
   .nav-item:hover { background: var(--bg); color: var(--text); }
-  .nav-item.active { background: var(--naranja-light); color: var(--naranja); font-weight: 500; }
+  .nav-item.active { background: #E6EDF7; color: #1B4B8A; font-weight: 500; }
   .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
 
   .nav-badge {
     margin-left: auto;
     font-size: 11px;
     font-weight: 600;
-    background: var(--naranja);
+    background: #1B4B8A;
     color: white;
     border-radius: 20px;
     padding: 1px 7px;
@@ -169,8 +169,8 @@
   }
 
   .btn:hover { background: var(--bg); }
-  .btn.primary { background: var(--naranja); color: white; border-color: var(--naranja); }
-  .btn.primary:hover { background: var(--naranja-dark); border-color: var(--naranja-dark); }
+  .btn.primary { background: #1B4B8A; color: white; border-color: #1B4B8A; }
+  .btn.primary:hover { background: #123570; border-color: #123570; }
   .btn svg { width: 15px; height: 15px; }
 
   /* METRICS */
@@ -342,7 +342,7 @@
     transition: border-color .15s;
   }
 
-  .search-input:focus { border-color: var(--naranja); }
+  .search-input:focus { border-color: #1B4B8A; }
 
   .filter-chips {
     display: flex;
@@ -363,8 +363,8 @@
     transition: all .15s;
   }
 
-  .chip:hover { border-color: var(--naranja); color: var(--naranja); }
-  .chip.active { background: var(--naranja); color: white; border-color: var(--naranja); }
+  .chip:hover { border-color: #1B4B8A; color: #1B4B8A; }
+  .chip.active { background: #1B4B8A; color: white; border-color: #1B4B8A; }
 
   /* LOADING */
   .loading {
@@ -380,7 +380,7 @@
   .spinner {
     width: 20px; height: 20px;
     border: 2px solid var(--border2);
-    border-top-color: var(--naranja);
+    border-top-color: #1B4B8A;
     border-radius: 50%;
     animation: spin .7s linear infinite;
   }
@@ -423,8 +423,8 @@
 
   /* ALERT BANNER */
   .alert-banner {
-    background: var(--naranja-light);
-    border: 1px solid rgba(232,89,60,0.2);
+    background: #E6EDF7;
+    border: 1px solid rgba(27,75,138,0.2);
     border-radius: var(--radius);
     padding: 14px 18px;
     display: flex;
@@ -432,7 +432,7 @@
     gap: 12px;
     margin-bottom: 20px;
     font-size: 13.5px;
-    color: var(--rojo);
+    color: #1B4B8A;
   }
 
   .alert-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
