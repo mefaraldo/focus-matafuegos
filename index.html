@@ -476,7 +476,7 @@
     </div>
     <div class="nav-item" onclick="showPage('cobros')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      <span>Cobros</span>
+      <span>Vencimientos</span>
       <span class="nav-badge" id="badge-cobros">0</span>
     </div>
     <div class="nav-item" onclick="showPage('vencimientos')">
@@ -520,14 +520,14 @@
     <div class="grid2">
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Deudas vencidas</div>
+          <div class="card-title">Urgentes por zona</div>
           <button class="btn" onclick="showPage('cobros')">Ver todas</button>
         </div>
         <div id="resumen-vencidos"><div class="loading"><div class="spinner"></div></div></div>
       </div>
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Vencimientos próximos</div>
+          <div class="card-title">Próximos por mes</div>
           <button class="btn" onclick="showPage('vencimientos')">Ver todos</button>
         </div>
         <div id="resumen-vencimientos"><div class="loading"><div class="spinner"></div></div></div>
@@ -560,11 +560,11 @@
           <thead>
             <tr>
               <th>Cliente</th>
-              <th>Tipo</th>
+              <th>Dirección</th>
+              <th>Zona</th>
               <th>Teléfono</th>
-              <th>Condición</th>
-              <th>Mat.</th>
-              <th>Notas</th>
+              <th>CUIT</th>
+              <th>Email</th>
             </tr>
           </thead>
           <tbody id="tbody-clientes">
@@ -595,11 +595,12 @@
           <thead>
             <tr>
               <th>Cliente</th>
-              <th>Descripción</th>
-              <th>Fecha</th>
-              <th>Vence</th>
-              <th>Importe</th>
+              <th>Dirección</th>
+              <th>Zona</th>
+              <th>Matafuego</th>
+              <th>Mes vencimiento</th>
               <th>Estado</th>
+              <th>Observaciones</th>
             </tr>
           </thead>
           <tbody id="tbody-cobros">
@@ -627,20 +628,24 @@
 
 <script>
 // =============================================
-// CONFIGURACIÓN — solo cambiar el SHEET_ID
+// CONFIG
 // =============================================
 const SHEET_ID = '1QcMw4i1FpPYmZOO1CQGLyawHtCfITVvC';
-const GID_CLIENTES = '2012375511';
-const GID_SERVICIOS = '816110800';
-const GID_VENCIMIENTOS = '405165756';
+const GID_CLIENTES = '1115158163';
+const GID_DETALLE = '508399462';
 const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=`;
+const DIAS_ALERTA = 15;
+const MESES_NUM = {
+  'Enero':1,'Febrero':2,'Marzo':3,'Abril':4,'Mayo':5,'Junio':6,
+  'Julio':7,'Agosto':8,'Septiembre':9,'Octubre':10,'Noviembre':11,'Diciembre':12
+};
 
 // =============================================
-// ESTADO GLOBAL
+// ESTADO
 // =============================================
-let data = { clientes: [], servicios: [], vencimientos: [] };
+let data = { clientes: [], detalle: [] };
 let filtroCliente = 'todos';
-let filtroCobro = 'todos';
+let filtroDetalle = 'todos';
 let searchCliente = '';
 
 // =============================================
@@ -651,12 +656,13 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const items = document.querySelectorAll('.nav-item');
-  const pages = ['resumen','clientes','cobros','vencimientos'];
-  items[pages.indexOf(name)]?.classList.add('active');
+  ['resumen','clientes','cobros','vencimientos'].forEach((p,i) => {
+    if(p === name) items[i]?.classList.add('active');
+  });
 }
 
 // =============================================
-// PARSEAR CSV
+// CSV PARSER
 // =============================================
 function parseCSV(text) {
   const lines = text.trim().split('\n');
@@ -682,14 +688,12 @@ function parseCSV(text) {
 async function loadData() {
   try {
     document.getElementById('last-update').textContent = 'actualizando...';
-    const [r1, r2, r3] = await Promise.all([
+    const [r1, r2] = await Promise.all([
       fetch(BASE_URL + GID_CLIENTES).then(r => r.text()),
-      fetch(BASE_URL + GID_SERVICIOS).then(r => r.text()),
-      fetch(BASE_URL + GID_VENCIMIENTOS).then(r => r.text()),
+      fetch(BASE_URL + GID_DETALLE).then(r => r.text()),
     ]);
     data.clientes = parseCSV(r1);
-    data.servicios = parseCSV(r2);
-    data.vencimientos = parseCSV(r3);
+    data.detalle = parseCSV(r2);
     document.getElementById('last-update').textContent = new Date().toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
     renderAll();
   } catch(e) {
@@ -701,121 +705,126 @@ async function loadData() {
 // =============================================
 // HELPERS
 // =============================================
-function parsePeso(n) {
-  let s = String(n).replace(/[^0-9.,]/g,'');
-  if (s.includes('.') && !s.includes(',')) s = s.replace(/\./g,'');
-  else if (s.includes(',')) s = s.replace(/\./g,'').replace(',','.');
-  return parseFloat(s) || 0;
-}
+function getMesNum(mes) { return MESES_NUM[mes] || 0; }
 
-function fmtPeso(n) {
-  const num = parsePeso(n);
-  return '$' + Math.round(num).toLocaleString('es-AR');
-}
-
-function diasDesde(fecha) {
-  if (!fecha) return 0;
-  const d = new Date(fecha);
+function getEstadoReal(mes) {
+  const n = getMesNum(mes);
   const hoy = new Date();
-  return Math.floor((hoy - d) / 86400000);
-}
-
-function diasHasta(fecha) {
-  if (!fecha) return 999;
-  const d = new Date(fecha);
-  const hoy = new Date();
-  return Math.floor((d - hoy) / 86400000);
+  const mesActual = hoy.getMonth() + 1;
+  const diasRestantes = (n - mesActual) * 30 - hoy.getDate();
+  if (n < mesActual) return 'atendido';
+  if (n === mesActual) return 'urgente';
+  if (diasRestantes <= DIAS_ALERTA) return 'urgente';
+  return 'proximo';
 }
 
 function initials(name) {
+  if (!name) return '?';
   return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 }
 
-const COLORS = ['#FAECE7,#993C1D','#E1F5EE,#0F6E56','#E6F1FB,#185FA5','#FAEEDA,#854F0B','#EEEDFE,#3C3489','#FBEAF0,#993556'];
+const COLORS = ['#E6EDF7,#1B4B8A','#E1F5EE,#0F6E56','#FAEEDA,#854F0B','#EEEDFE,#3C3489','#FBEAF0,#993556','#E6F1FB,#185FA5'];
 function avatarColor(name) {
+  if (!name) return { bg: '#F2F4F7', fg: '#4A5568' };
   const i = name.charCodeAt(0) % COLORS.length;
   const [bg, fg] = COLORS[i].split(',');
   return { bg, fg };
+}
+
+function badgeEstado(estado) {
+  const map = { urgente: 'vencido', proximo: 'pendiente', atendido: 'cobrado' };
+  const label = { urgente: 'urgente', proximo: 'próximo', atendido: 'atendido' };
+  return `<span class="badge ${map[estado] || ''}">${label[estado] || estado}</span>`;
 }
 
 // =============================================
 // RENDER RESUMEN
 // =============================================
 function renderResumen() {
-  const vencidos = data.servicios.filter(s => s.estado === 'vencido');
-  const pendientes = data.servicios.filter(s => s.estado === 'pendiente');
-  const cobrados = data.servicios.filter(s => s.estado === 'cobrado');
+  const hoy = new Date();
+  const mesActual = hoy.getMonth() + 1;
 
-  const totalDeuda = [...vencidos, ...pendientes].reduce((a,s) => a + parsePeso(s.importe), 0);
-  const totalVencido = vencidos.reduce((a,s) => a + parsePeso(s.importe), 0);
-  const totalPendiente = pendientes.reduce((a,s) => a + parsePeso(s.importe), 0);
-  const totalCobrado = cobrados.reduce((a,s) => a + parsePeso(s.importe), 0);
+  // Calcular estado real con lógica de 15 días
+  const urgentes = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'urgente');
+  const proximos = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'proximo');
+
+  // Clientes únicos urgentes
+  const clientesUrgentes = [...new Set(urgentes.map(d => d.nombre + '|' + d.direccion))];
+  const clientesProximos = [...new Set(proximos.map(d => d.nombre + '|' + d.direccion))];
+
+  // Total matafuegos urgentes
+  const totalMatsUrgentes = urgentes.reduce((a,d) => a + (parseFloat(d.cantidad)||0), 0);
 
   document.getElementById('metrics-area').innerHTML = `
     <div class="metric">
-      <div class="metric-label">Deuda total</div>
-      <div class="metric-value danger">${fmtPeso(totalDeuda)}</div>
-      <div class="metric-sub">${vencidos.length + pendientes.length} servicios pendientes</div>
+      <div class="metric-label">Clientes urgentes</div>
+      <div class="metric-value danger">${clientesUrgentes.length}</div>
+      <div class="metric-sub">Llamar ahora</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Vencido</div>
-      <div class="metric-value danger">${fmtPeso(totalVencido)}</div>
-      <div class="metric-sub">${vencidos.length} facturas</div>
+      <div class="metric-label">Matafuegos urgentes</div>
+      <div class="metric-value danger">${Math.round(totalMatsUrgentes)}</div>
+      <div class="metric-sub">Por recargar</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Por cobrar</div>
-      <div class="metric-value warning">${fmtPeso(totalPendiente)}</div>
-      <div class="metric-sub">${pendientes.length} facturas</div>
+      <div class="metric-label">Próximos 30 días</div>
+      <div class="metric-value warning">${clientesProximos.length}</div>
+      <div class="metric-sub">Clientes</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Cobrado</div>
-      <div class="metric-value success">${fmtPeso(totalCobrado)}</div>
-      <div class="metric-sub">${cobrados.length} servicios</div>
+      <div class="metric-label">Total cartera</div>
+      <div class="metric-value" style="color:var(--naranja)">${data.clientes.length}</div>
+      <div class="metric-sub">Clientes activos</div>
     </div>
   `;
 
-  // Alerta
+  // Alert banner
   const alertArea = document.getElementById('alert-area');
-  if (vencidos.length > 0) {
+  if (clientesUrgentes.length > 0) {
     alertArea.innerHTML = `<div class="alert-banner">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Tenés <strong>${vencidos.length} cobros vencidos</strong> por un total de <strong>${fmtPeso(totalVencido)}</strong>. Revisalos en la sección Cobros.
+      Tenés <strong>${clientesUrgentes.length} clientes urgentes</strong> con <strong>${Math.round(totalMatsUrgentes)} matafuegos</strong> por recargar. ¡Llamalos antes que la competencia!
     </div>`;
   } else {
     alertArea.innerHTML = '';
   }
 
-  // Resumen vencidos
-  const topVencidos = vencidos.slice(0,4);
-  document.getElementById('resumen-vencidos').innerHTML = topVencidos.length ? `
+  // Top urgentes por zona
+  const porZona = {};
+  urgentes.forEach(d => {
+    porZona[d.zona] = (porZona[d.zona] || 0) + 1;
+  });
+  const zonasSorted = Object.entries(porZona).sort((a,b) => b[1]-a[1]).slice(0,5);
+
+  document.getElementById('resumen-vencidos').innerHTML = zonasSorted.length ? `
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      ${topVencidos.map(s => `
+      ${zonasSorted.map(([zona, cant]) => `
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:11px 16px;font-weight:500;">${s.cliente_nombre}</td>
-          <td style="padding:11px 16px;text-align:right;font-family:'DM Mono',monospace;color:var(--rojo);">${fmtPeso(s.importe)}</td>
-          <td style="padding:11px 16px;"><span class="badge vencido">vencido</span></td>
+          <td style="padding:11px 16px;font-weight:500;">${zona}</td>
+          <td style="padding:11px 16px;color:var(--text3);">${cant} matafuegos</td>
+          <td style="padding:11px 16px;"><span class="badge vencido">urgente</span></td>
         </tr>`).join('')}
-    </table>` : `<div class="empty">Sin cobros vencidos 🎉</div>`;
+    </table>` : `<div class="empty">Sin urgentes 🎉</div>`;
 
-  // Resumen vencimientos
-  const proxVenc = data.vencimientos
-    .map(v => ({ ...v, dias: diasHasta(v.proxima_fecha) }))
-    .filter(v => v.dias <= 60)
-    .sort((a,b) => a.dias - b.dias)
-    .slice(0,4);
+  // Próximos vencimientos por mes
+  const porMes = {};
+  data.detalle.forEach(d => {
+    const estado = getEstadoReal(d.mes_vencimiento);
+    if (estado === 'proximo') {
+      porMes[d.mes_vencimiento] = (porMes[d.mes_vencimiento] || 0) + 1;
+    }
+  });
+  const mesesSorted = Object.entries(porMes).sort((a,b) => getMesNum(a[0]) - getMesNum(b[0])).slice(0,5);
 
-  document.getElementById('resumen-vencimientos').innerHTML = proxVenc.length ? `
+  document.getElementById('resumen-vencimientos').innerHTML = mesesSorted.length ? `
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      ${proxVenc.map(v => {
-        const cls = v.dias < 0 ? 'vencido' : v.dias <= 30 ? 'pendiente' : 'cobrado';
-        const label = v.dias < 0 ? `vencido ${Math.abs(v.dias)}d` : `${v.dias} días`;
-        return `<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:11px 16px;font-weight:500;">${v.cliente_nombre}</td>
-          <td style="padding:11px 16px;color:var(--text3);font-size:12px;">${v.cantidad} mat.</td>
-          <td style="padding:11px 16px;"><span class="badge ${cls}">${label}</span></td>
-        </tr>`;
-      }).join('')}
-    </table>` : `<div class="empty">Sin vencimientos próximos</div>`;
+      ${mesesSorted.map(([mes, cant]) => `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:11px 16px;font-weight:500;">${mes}</td>
+          <td style="padding:11px 16px;color:var(--text3);">${cant} matafuegos</td>
+          <td style="padding:11px 16px;"><span class="badge pendiente">próximo</span></td>
+        </tr>`).join('')}
+    </table>` : `<div class="empty">Sin próximos vencimientos</div>`;
 }
 
 // =============================================
@@ -823,8 +832,12 @@ function renderResumen() {
 // =============================================
 function renderClientes() {
   let lista = data.clientes;
-  if (filtroCliente !== 'todos') lista = lista.filter(c => c.tipo === filtroCliente);
-  if (searchCliente) lista = lista.filter(c => c.nombre.toLowerCase().includes(searchCliente.toLowerCase()));
+  if (searchCliente) lista = lista.filter(c => 
+    (c.Nombre||'').toLowerCase().includes(searchCliente.toLowerCase()) ||
+    (c.Direccion||'').toLowerCase().includes(searchCliente.toLowerCase()) ||
+    (c.zona||'').toLowerCase().includes(searchCliente.toLowerCase())
+  );
+  if (filtroCliente !== 'todos') lista = lista.filter(c => (c.zona||'') === filtroCliente);
 
   document.getElementById('clientes-count').textContent = `${lista.length} clientes`;
 
@@ -832,43 +845,45 @@ function renderClientes() {
   if (!lista.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty">Sin resultados</div></td></tr>`; return; }
 
   tbody.innerHTML = lista.map(c => {
-    const { bg, fg } = avatarColor(c.nombre);
+    const { bg, fg } = avatarColor(c.Nombre);
+    const tel = c.Telefono && c.Telefono !== '' ? `<a href="tel:${c.Telefono}" style="color:var(--naranja)">${c.Telefono}</a>` : '<span style="color:var(--text3)">—</span>';
     return `<tr>
       <td><div class="client-cell">
-        <div class="avatar" style="background:${bg};color:${fg};">${initials(c.nombre)}</div>
-        <div><div class="client-cell-name">${c.nombre}</div><div class="client-cell-sub">${c.email && c.email !== '-' ? c.email : ''}</div></div>
+        <div class="avatar" style="background:${bg};color:${fg};">${initials(c.Nombre)}</div>
+        <div><div class="client-cell-name">${c.Nombre||''}</div><div class="client-cell-sub">${c.Referente||''}</div></div>
       </div></td>
-      <td class="td-muted">${c.tipo}</td>
-      <td class="td-muted">${c.telefono}</td>
-      <td class="td-muted">${c.condicion_pago}</td>
-      <td class="td-mono">${c.cant_matafuegos}</td>
-      <td class="td-muted" style="font-size:12px;">${c.notas}</td>
+      <td class="td-muted">${c.Direccion||''}</td>
+      <td class="td-muted">${c.zona||''}</td>
+      <td>${tel}</td>
+      <td class="td-muted" style="font-size:12px;">${c.CUIT||''}</td>
+      <td class="td-muted" style="font-size:12px;">${c.EMAIL||''}</td>
     </tr>`;
   }).join('');
 }
 
 // =============================================
-// RENDER COBROS
+// RENDER COBROS (DETALLE POR ESTADO)
 // =============================================
 function renderCobros() {
-  let lista = data.servicios;
-  if (filtroCobro !== 'todos') lista = lista.filter(s => s.estado === filtroCobro);
+  let lista = data.detalle.map(d => ({...d, estadoReal: getEstadoReal(d.mes_vencimiento)}));
+  if (filtroDetalle !== 'todos') lista = lista.filter(d => d.estadoReal === filtroDetalle);
 
-  const vencidos = lista.filter(s => s.estado === 'vencido').length;
-  document.getElementById('cobros-count').textContent = `${lista.length} servicios${vencidos ? ` · ${vencidos} vencidos` : ''}`;
-  document.getElementById('badge-cobros').textContent = data.servicios.filter(s => s.estado === 'vencido').length;
+  const urgentes = lista.filter(d => d.estadoReal === 'urgente').length;
+  document.getElementById('cobros-count').textContent = `${lista.length} registros${urgentes ? ` · ${urgentes} urgentes` : ''}`;
+  document.getElementById('badge-cobros').textContent = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'urgente').length;
 
   const tbody = document.getElementById('tbody-cobros');
-  if (!lista.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty">Sin resultados</div></td></tr>`; return; }
+  if (!lista.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty">Sin resultados</div></td></tr>`; return; }
 
-  tbody.innerHTML = lista.map(s => `
+  tbody.innerHTML = lista.map(d => `
     <tr>
-      <td style="font-weight:500;">${s.cliente_nombre}</td>
-      <td class="td-muted" style="font-size:13px;">${s.descripcion}</td>
-      <td class="td-muted">${s.fecha_servicio}</td>
-      <td class="td-muted">${s.fecha_venc_cobro}</td>
-      <td class="td-mono" style="font-weight:500;">${fmtPeso(s.importe)}</td>
-      <td><span class="badge ${s.estado}">${s.estado}</span></td>
+      <td style="font-weight:500;font-size:13px;">${d.nombre||''}</td>
+      <td class="td-muted" style="font-size:12px;">${d.direccion||''}</td>
+      <td class="td-muted">${d.zona||''}</td>
+      <td class="td-mono">${d.tipo||''} ${d.capacidad_kg||''}kg × ${d.cantidad||''}</td>
+      <td class="td-muted">${d.mes_vencimiento||''}</td>
+      <td>${badgeEstado(d.estadoReal)}</td>
+      <td class="td-muted" style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.observaciones||''}</td>
     </tr>`).join('');
 }
 
@@ -876,27 +891,34 @@ function renderCobros() {
 // RENDER VENCIMIENTOS
 // =============================================
 function renderVencimientos() {
-  const lista = data.vencimientos
-    .map(v => ({ ...v, dias: diasHasta(v.proxima_fecha) }))
-    .sort((a,b) => a.dias - b.dias);
+  const urgentes = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'urgente');
+  const proximos = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'proximo');
 
-  const urgentes = lista.filter(v => v.dias <= 30).length;
-  document.getElementById('badge-venc').textContent = urgentes;
+  // Group by mes
+  const byMes = {};
+  [...urgentes, ...proximos].forEach(d => {
+    const key = d.mes_vencimiento;
+    if (!byMes[key]) byMes[key] = { mes: key, clientes: new Set(), mats: 0, estado: getEstadoReal(key) };
+    byMes[key].clientes.add(d.nombre + '|' + d.direccion);
+    byMes[key].mats += parseFloat(d.cantidad) || 0;
+  });
+
+  const lista = Object.values(byMes).sort((a,b) => getMesNum(a.mes) - getMesNum(b.mes));
+  document.getElementById('badge-venc').textContent = urgentes.length > 0 ? [...new Set(urgentes.map(d => d.nombre+'|'+d.direccion))].length : 0;
 
   const grid = document.getElementById('venc-grid');
-  if (!lista.length) { grid.innerHTML = `<div class="empty">Sin vencimientos cargados</div>`; return; }
+  if (!lista.length) { grid.innerHTML = `<div class="empty">Sin vencimientos próximos</div>`; return; }
 
   grid.innerHTML = lista.map(v => {
-    const cls = v.dias < 0 ? 'urgente' : v.dias <= 30 ? 'urgente' : v.dias <= 60 ? 'proximo' : 'ok';
-    const label = v.dias < 0 ? `Vencido hace ${Math.abs(v.dias)} días` : v.dias === 0 ? 'Vence hoy' : `${v.dias} días`;
+    const cls = v.estado === 'urgente' ? 'urgente' : 'proximo';
     return `<div class="venc-item ${cls}">
       <div>
-        <div class="venc-name">${v.cliente_nombre}</div>
-        <div class="venc-detail">${v.cantidad} matafuegos · ${v.frecuencia}</div>
+        <div class="venc-name">${v.mes} 2026</div>
+        <div class="venc-detail">${v.clientes.size} clientes · ${Math.round(v.mats)} matafuegos</div>
       </div>
       <div>
-        <div class="venc-days ${cls}">${label}</div>
-        <div class="venc-fecha">${v.proxima_fecha}</div>
+        <div class="venc-days ${cls}">${v.estado === 'urgente' ? '🔴 Urgente' : '🟡 Próximo'}</div>
+        <div class="venc-fecha">Alerta: 16 de ${Object.keys(MESES_NUM)[getMesNum(v.mes)-2] || 'mes anterior'}</div>
       </div>
     </div>`;
   }).join('');
@@ -917,14 +939,33 @@ function chipCliente(el, val) {
 function chipCobro(el, val) {
   document.querySelectorAll('#chips-cobros .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  filtroCobro = val;
+  filtroDetalle = val;
   renderCobros();
+}
+
+// =============================================
+// ZONAS PARA FILTRO
+// =============================================
+function buildZonaChips() {
+  const zonas = [...new Set(data.clientes.map(c => c.zona).filter(Boolean))].sort();
+  const container = document.getElementById('chips-clientes');
+  const existing = container.querySelectorAll('.chip');
+  // Remove all except first (Todos)
+  existing.forEach((c,i) => { if(i > 0) c.remove(); });
+  zonas.forEach(z => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = z;
+    chip.onclick = function() { chipCliente(this, z); };
+    container.appendChild(chip);
+  });
 }
 
 // =============================================
 // RENDER ALL
 // =============================================
 function renderAll() {
+  buildZonaChips();
   renderResumen();
   renderClientes();
   renderCobros();
@@ -936,6 +977,5 @@ function renderAll() {
 // =============================================
 document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-AR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 loadData();
-</script>
+
 </body>
-</html>
