@@ -3,467 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focus Matafuegos — Panel de Gestión</title>
+<title>Focus Matafuegos</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --naranja: #1B4B8A;
-    --naranja-dark: #123570;
-    --naranja-light: #E6EDF7;
-    --amarillo-light: #FAEEDA;
-    --amarillo: #BA7517;
-    --verde-light: #EAF3DE;
-    --verde: #3B6D11;
-    --rojo: #C04828;
-    --bg: #F2F4F7;
-    --bg2: #E4E8EF;
-    --white: #FFFFFF;
-    --text: #0F1C2E;
-    --text2: #4A5568;
-    --text3: #8A95A3;
-    --border: rgba(0,0,0,0.08);
-    --border2: rgba(0,0,0,0.14);
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
+:root {
+  --azul: #1B4B8A;
+  --azul-dark: #123570;
+  --azul-light: #E6EDF7;
+  --azul-mid: #B5D4F4;
+  --rojo: #C04828;
+  --rojo-light: #FAECE7;
+  --amarillo: #BA7517;
+  --amarillo-light: #FAEEDA;
+  --verde: #3B6D11;
+  --verde-light: #EAF3DE;
+  --gris: #F2F4F7;
+  --gris2: #E4E8EF;
+  --white: #FFFFFF;
+  --text: #0F1C2E;
+  --text2: #4A5568;
+  --text3: #8A95A3;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --r: 12px;
+  --r-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gris); color: var(--text); min-height: 100vh; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* SIDEBAR */
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
+.logo-area { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+.logo-img { width: 100%; max-width: 150px; display: block; margin: 0 auto 6px; }
+.logo-sub { text-align: center; font-size: 11px; color: var(--text3); }
+.nav { padding: 14px 10px; flex: 1; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; margin-top: 10px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--r-sm); font-size: 13px; color: var(--text2); cursor: pointer; transition: all .15s; margin-bottom: 2px; }
+.nav-item:hover { background: var(--gris); color: var(--text); }
+.nav-item.active { background: var(--azul-light); color: var(--azul); font-weight: 500; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; font-size: 11px; font-weight: 600; background: var(--rojo); color: white; border-radius: 20px; padding: 1px 7px; }
+.sidebar-footer { padding: 14px 18px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text3); line-height: 1.5; }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+/* MAIN */
+.main { margin-left: 220px; padding: 24px 28px; min-height: 100vh; }
+.page { display: none; }
+.page.active { display: block; }
 
-  /* SIDEBAR */
-  .sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 220px;
-    background: var(--white);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
-  }
+/* TOPBAR */
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+.page-title { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; }
+.page-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: var(--r-sm); border: 1px solid var(--border2); background: var(--white); color: var(--text); cursor: pointer; transition: all .15s; }
+.btn:hover { background: var(--gris); }
+.btn.primary { background: var(--azul); color: white; border-color: var(--azul); }
+.btn.primary:hover { background: var(--azul-dark); }
+.btn.success { background: var(--verde); color: white; border-color: var(--verde); }
+.btn.danger { background: var(--rojo); color: white; border-color: var(--rojo); }
+.btn svg { width: 14px; height: 14px; }
 
-  .logo-area {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid var(--border);
-  }
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.metric { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.metric-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.metric-value { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; font-family: 'DM Mono', monospace; }
+.metric-value.danger { color: var(--rojo); }
+.metric-value.warning { color: var(--amarillo); }
+.metric-value.success { color: var(--verde); }
+.metric-value.primary { color: var(--azul); }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
 
-  .logo-icon {
-    width: 38px; height: 38px;
-    background: #1B4B8A;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 10px;
-  }
+/* ALERT */
+.alert-banner { background: var(--rojo-light); border: 1px solid rgba(192,72,40,0.2); border-radius: var(--r); padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 13px; color: var(--rojo); }
+.alert-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-  .logo-icon svg { width: 20px; height: 20px; }
+/* CARDS */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 13.5px; font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-  .logo-name {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: -0.3px;
-  }
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: var(--gris); padding: 9px 14px; text-align: left; font-size: 10.5px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); }
+tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; cursor: pointer; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--gris); }
+tbody tr.selected { background: var(--azul-light); }
+td { padding: 11px 14px; color: var(--text); vertical-align: middle; }
+.td-muted { color: var(--text2); }
+.td-mono { font-family: 'DM Mono', monospace; font-size: 12px; }
 
-  .logo-sub {
-    font-size: 11px;
-    color: var(--text3);
-    margin-top: 1px;
-  }
+/* BADGES */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; }
+.badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+.badge.urgente { background: var(--rojo-light); color: var(--rojo); }
+.badge.urgente::before { background: var(--rojo); }
+.badge.proximo { background: var(--amarillo-light); color: var(--amarillo); }
+.badge.proximo::before { background: var(--amarillo); }
+.badge.atendido { background: var(--verde-light); color: var(--verde); }
+.badge.atendido::before { background: var(--verde); }
 
-  .nav {
-    padding: 16px 12px;
-    flex: 1;
-  }
+/* AVATAR */
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.client-cell { display: flex; align-items: center; gap: 10px; }
+.client-cell-name { font-weight: 500; font-size: 13px; }
+.client-cell-sub { font-size: 11px; color: var(--text3); }
 
-  .nav-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text3);
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    padding: 0 8px;
-    margin-bottom: 6px;
-    margin-top: 12px;
-  }
+/* SEARCH */
+.search-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+.search-wrap { position: relative; flex: 1; }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text3); }
+.search-input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px 8px 32px; border: 1px solid var(--border2); border-radius: var(--r-sm); background: var(--white); color: var(--text); outline: none; transition: border-color .15s; }
+.search-input:focus { border-color: var(--azul); }
+.filter-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.chip { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border2); background: var(--white); color: var(--text2); cursor: pointer; transition: all .15s; }
+.chip:hover { border-color: var(--azul); color: var(--azul); }
+.chip.active { background: var(--azul); color: white; border-color: var(--azul); }
 
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 13.5px;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all .15s;
-    margin-bottom: 2px;
-  }
+/* DETAIL PANEL */
+.detail-panel { background: var(--white); border: 1px solid var(--azul); border-radius: var(--r); padding: 16px 18px; margin-top: 14px; animation: slideIn .15s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.detail-title { font-size: 15px; font-weight: 600; }
+.detail-subtitle { font-size: 12px; color: var(--text2); margin-top: 1px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.detail-field-label { font-size: 10.5px; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.detail-field-value { font-size: 13px; color: var(--text); font-weight: 500; }
+.detail-mats { margin-bottom: 14px; }
+.detail-mats-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.mat-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; background: var(--gris); border-radius: var(--r-sm); margin-bottom: 4px; font-size: 12px; }
+.mat-tipo { font-weight: 500; color: var(--text); }
+.mat-cant { font-family: 'DM Mono', monospace; color: var(--azul); font-weight: 500; }
+.detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.detail-close { position: absolute; right: 16px; top: 14px; cursor: pointer; color: var(--text3); font-size: 18px; line-height: 1; }
 
-  .nav-item:hover { background: var(--bg); color: var(--text); }
-  .nav-item.active { background: #E6EDF7; color: #1B4B8A; font-weight: 500; }
-  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+/* VENC GRID */
+.venc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.venc-item { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.venc-item.urgente { border-left: 3px solid var(--rojo); }
+.venc-item.proximo { border-left: 3px solid var(--amarillo); }
+.venc-name { font-size: 14px; font-weight: 500; }
+.venc-detail { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.venc-days { font-size: 16px; font-weight: 600; font-family: 'DM Mono', monospace; text-align: right; }
+.venc-days.urgente { color: var(--rojo); }
+.venc-days.proximo { color: var(--amarillo); }
+.venc-fecha { font-size: 11px; color: var(--text3); text-align: right; margin-top: 2px; }
 
-  .nav-badge {
-    margin-left: auto;
-    font-size: 11px;
-    font-weight: 600;
-    background: #1B4B8A;
-    color: white;
-    border-radius: 20px;
-    padding: 1px 7px;
-  }
+/* ZONA PROGRESS */
+.zona-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; margin-bottom: 8px; }
+.zona-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.zona-name { font-size: 13.5px; font-weight: 500; }
+.zona-count { font-size: 12px; color: var(--text3); }
+.progress-bar { height: 5px; background: var(--gris2); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 5px; background: var(--azul); border-radius: 3px; transition: width .3s; }
 
-  .sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--text3);
-  }
+/* LOADING */
+.loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--text3); gap: 10px; font-size: 13px; }
+.spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--azul); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { padding: 32px; text-align: center; color: var(--text3); font-size: 13px; }
 
-  /* MAIN */
-  .main {
-    margin-left: 220px;
-    padding: 28px 32px;
-    min-height: 100vh;
-  }
+/* ARCA placeholder */
+.arca-banner { background: var(--azul-light); border: 1px solid var(--azul-mid); border-radius: var(--r); padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.arca-banner-text { font-size: 13px; color: var(--azul); }
+.arca-banner-text strong { font-weight: 600; }
 
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* TOPBAR */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-
-  .page-title {
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-  }
-
-  .page-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 8px 16px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border2);
-    background: var(--white);
-    color: var(--text);
-    cursor: pointer;
-    transition: all .15s;
-  }
-
-  .btn:hover { background: var(--bg); }
-  .btn.primary { background: #1B4B8A; color: white; border-color: #1B4B8A; }
-  .btn.primary:hover { background: #123570; border-color: #123570; }
-  .btn svg { width: 15px; height: 15px; }
-
-  /* METRICS */
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 24px;
-  }
-
-  .metric {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-  }
-
-  .metric-label {
-    font-size: 12px;
-    color: var(--text3);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: 8px;
-  }
-
-  .metric-value {
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .metric-value.danger { color: var(--rojo); }
-  .metric-value.warning { color: var(--amarillo); }
-  .metric-value.success { color: var(--verde); }
-  .metric-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
-
-  /* CARDS */
-  .card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  .card-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card-title { font-size: 14px; font-weight: 600; }
-
-  /* TABLE */
-  .table-wrap { overflow-x: auto; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13.5px;
-  }
-
-  thead th {
-    background: var(--bg);
-    padding: 10px 16px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    border-bottom: 1px solid var(--border);
-  }
-
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background .1s;
-    cursor: pointer;
-  }
-
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--bg); }
-
-  td {
-    padding: 12px 16px;
-    color: var(--text);
-  }
-
-  .td-muted { color: var(--text2); }
-  .td-mono { font-family: 'DM Mono', monospace; font-size: 13px; }
-
-  /* BADGES */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11.5px;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
-
-  .badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-  }
-
-  .badge.vencido { background: var(--naranja-light); color: var(--rojo); }
-  .badge.vencido::before { background: var(--rojo); }
-  .badge.pendiente { background: var(--amarillo-light); color: var(--amarillo); }
-  .badge.pendiente::before { background: var(--amarillo); }
-  .badge.cobrado { background: var(--verde-light); color: var(--verde); }
-  .badge.cobrado::before { background: var(--verde); }
-
-  /* AVATAR */
-  .avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .client-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .client-cell-name { font-weight: 500; }
-  .client-cell-sub { font-size: 12px; color: var(--text3); }
-
-  /* SEARCH */
-  .search-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-    align-items: center;
-  }
-
-  .search-wrap {
-    position: relative;
-    flex: 1;
-  }
-
-  .search-wrap svg {
-    position: absolute;
-    left: 12px; top: 50%;
-    transform: translateY(-50%);
-    width: 16px; height: 16px;
-    color: var(--text3);
-  }
-
-  .search-input {
-    width: 100%;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    padding: 9px 14px 9px 36px;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    background: var(--white);
-    color: var(--text);
-    outline: none;
-    transition: border-color .15s;
-  }
-
-  .search-input:focus { border-color: #1B4B8A; }
-
-  .filter-chips {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-
-  .chip {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 5px 14px;
-    border-radius: 20px;
-    border: 1px solid var(--border2);
-    background: var(--white);
-    color: var(--text2);
-    cursor: pointer;
-    transition: all .15s;
-  }
-
-  .chip:hover { border-color: #1B4B8A; color: #1B4B8A; }
-  .chip.active { background: #1B4B8A; color: white; border-color: #1B4B8A; }
-
-  /* LOADING */
-  .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 48px;
-    color: var(--text3);
-    gap: 10px;
-    font-size: 14px;
-  }
-
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid var(--border2);
-    border-top-color: #1B4B8A;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* VENCIMIENTOS */
-  .venc-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 24px;
-  }
-
-  .venc-item {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .venc-item.urgente { border-left: 3px solid var(--rojo); }
-  .venc-item.proximo { border-left: 3px solid var(--amarillo); }
-  .venc-item.ok { border-left: 3px solid var(--verde); }
-
-  .venc-name { font-size: 14px; font-weight: 500; }
-  .venc-detail { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .venc-days { font-size: 15px; font-weight: 600; font-family: 'DM Mono', monospace; text-align: right; }
-  .venc-days.urgente { color: var(--rojo); }
-  .venc-days.proximo { color: var(--amarillo); }
-  .venc-days.ok { color: var(--verde); }
-  .venc-fecha { font-size: 11px; color: var(--text3); text-align: right; }
-
-  /* GRID 2 col */
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-  /* ALERT BANNER */
-  .alert-banner {
-    background: #E6EDF7;
-    border: 1px solid rgba(27,75,138,0.2);
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    font-size: 13.5px;
-    color: #1B4B8A;
-  }
-
-  .alert-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-  /* EMPTY */
-  .empty {
-    padding: 40px;
-    text-align: center;
-    color: var(--text3);
-    font-size: 14px;
-  }
-
-  @media (max-width: 900px) {
-    .sidebar { width: 60px; }
-    .logo-name, .logo-sub, .nav-label, .nav-item span, .nav-badge, .sidebar-footer { display: none; }
-    .main { margin-left: 60px; padding: 20px 16px; }
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    .venc-grid { grid-template-columns: 1fr; }
-    .grid2 { grid-template-columns: 1fr; }
-  }
+@media (max-width: 900px) {
+  .sidebar { width: 56px; }
+  .logo-img, .logo-sub, .nav-label, .nav-item span, .nav-badge, .sidebar-footer { display: none; }
+  .main { margin-left: 56px; padding: 16px 14px; }
+  .metrics { grid-template-columns: repeat(2,1fr); }
+  .venc-grid { grid-template-columns: 1fr; }
+  .grid2 { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="logo-area">
-    <img src="logo_focus.PNG" alt="Focus Matafuegos" style="width:100%;max-width:160px;display:block;margin:0 auto 4px;">
-    <div class="logo-sub" style="text-align:center;">Adrogué</div>
+    <img src="logo_focus.PNG" alt="Focus Matafuegos" class="logo-img">
+    <div class="logo-sub">Adrogué</div>
   </div>
-
   <div class="nav">
     <div class="nav-label">Principal</div>
     <div class="nav-item active" onclick="showPage('resumen')">
@@ -474,25 +197,27 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>Clientes</span>
     </div>
-    <div class="nav-item" onclick="showPage('cobros')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      <span>Vencimientos</span>
-      <span class="nav-badge" id="badge-cobros">0</span>
+    <div class="nav-item" onclick="showPage('seguimiento')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Seguimiento</span>
+      <span class="nav-badge" id="badge-seg">0</span>
     </div>
     <div class="nav-item" onclick="showPage('vencimientos')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span>Vencimientos</span>
-      <span class="nav-badge" id="badge-venc">0</span>
+    </div>
+    <div class="nav-label">Próximamente</div>
+    <div class="nav-item" style="opacity:.5;cursor:not-allowed;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span>Facturación ARCA</span>
     </div>
   </div>
-
   <div class="sidebar-footer">
     Última actualización:<br>
     <span id="last-update">cargando...</span>
   </div>
 </nav>
 
-<!-- MAIN -->
 <main class="main">
 
   <!-- RESUMEN -->
@@ -508,6 +233,11 @@
       </button>
     </div>
 
+    <div class="arca-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;color:var(--azul)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="arca-banner-text"><strong>Integración ARCA en camino</strong> — Próximamente vas a ver acá lo facturado automáticamente desde GEOMA.</div>
+    </div>
+
     <div id="alert-area"></div>
 
     <div class="metrics" id="metrics-area">
@@ -521,16 +251,16 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">Urgentes por zona</div>
-          <button class="btn" onclick="showPage('cobros')">Ver todas</button>
+          <button class="btn" onclick="showPage('seguimiento')">Ver seguimiento</button>
         </div>
-        <div id="resumen-vencidos"><div class="loading"><div class="spinner"></div></div></div>
+        <div id="resumen-zonas"><div class="loading"><div class="spinner"></div></div></div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-title">Próximos por mes</div>
           <button class="btn" onclick="showPage('vencimientos')">Ver todos</button>
         </div>
-        <div id="resumen-vencimientos"><div class="loading"><div class="spinner"></div></div></div>
+        <div id="resumen-meses"><div class="loading"><div class="spinner"></div></div></div>
       </div>
     </div>
   </div>
@@ -546,13 +276,11 @@
     <div class="search-row">
       <div class="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="search-input" type="text" placeholder="Buscar por nombre..." oninput="filterClientes(this.value)">
+        <input class="search-input" type="text" placeholder="Buscar cliente, dirección o zona..." oninput="filterClientes(this.value)" id="search-clientes">
       </div>
     </div>
     <div class="filter-chips" id="chips-clientes">
       <div class="chip active" onclick="chipCliente(this,'todos')">Todos</div>
-      <div class="chip" onclick="chipCliente(this,'empresa')">Empresas</div>
-      <div class="chip" onclick="chipCliente(this,'particular')">Particulares</div>
     </div>
     <div class="card">
       <div class="table-wrap">
@@ -563,31 +291,32 @@
               <th>Dirección</th>
               <th>Zona</th>
               <th>Teléfono</th>
+              <th>Referente</th>
               <th>CUIT</th>
-              <th>Email</th>
             </tr>
           </thead>
           <tbody id="tbody-clientes">
-            <tr><td colspan="6"><div class="loading"><div class="spinner"></div> Cargando datos...</div></td></tr>
+            <tr><td colspan="6"><div class="loading"><div class="spinner"></div> Cargando...</div></td></tr>
           </tbody>
         </table>
       </div>
     </div>
+    <div id="cliente-detail"></div>
   </div>
 
-  <!-- COBROS -->
-  <div class="page" id="page-cobros">
+  <!-- SEGUIMIENTO -->
+  <div class="page" id="page-seguimiento">
     <div class="topbar">
       <div>
-        <div class="page-title">Cobros</div>
-        <div class="page-sub" id="cobros-count"></div>
+        <div class="page-title">Seguimiento</div>
+        <div class="page-sub" id="seg-count"></div>
       </div>
     </div>
-    <div class="filter-chips" id="chips-cobros">
-      <div class="chip active" onclick="chipCobro(this,'todos')">Todos</div>
-      <div class="chip" onclick="chipCobro(this,'vencido')">Vencidos</div>
-      <div class="chip" onclick="chipCobro(this,'pendiente')">Pendientes</div>
-      <div class="chip" onclick="chipCobro(this,'cobrado')">Cobrados</div>
+    <div class="filter-chips" id="chips-seg">
+      <div class="chip active" onclick="chipSeg(this,'todos')">Todos</div>
+      <div class="chip" onclick="chipSeg(this,'urgente')">Urgentes</div>
+      <div class="chip" onclick="chipSeg(this,'proximo')">Próximos</div>
+      <div class="chip" onclick="chipSeg(this,'atendido')">Atendidos</div>
     </div>
     <div class="card">
       <div class="table-wrap">
@@ -603,22 +332,24 @@
               <th>Observaciones</th>
             </tr>
           </thead>
-          <tbody id="tbody-cobros">
-            <tr><td colspan="6"><div class="loading"><div class="spinner"></div> Cargando datos...</div></td></tr>
+          <tbody id="tbody-seg">
+            <tr><td colspan="7"><div class="loading"><div class="spinner"></div> Cargando...</div></td></tr>
           </tbody>
         </table>
       </div>
     </div>
+    <div id="seg-detail"></div>
   </div>
 
   <!-- VENCIMIENTOS -->
   <div class="page" id="page-vencimientos">
     <div class="topbar">
       <div>
-        <div class="page-title">Vencimientos de matafuegos</div>
-        <div class="page-sub">Próximas recargas programadas</div>
+        <div class="page-title">Vencimientos 2026</div>
+        <div class="page-sub">Alerta automática 15 días antes del mes</div>
       </div>
     </div>
+    <div id="zonas-progress" style="margin-bottom:20px;"></div>
     <div class="venc-grid" id="venc-grid">
       <div class="loading"><div class="spinner"></div> Cargando...</div>
     </div>
@@ -627,43 +358,29 @@
 </main>
 
 <script>
-// =============================================
-// CONFIG
-// =============================================
 const SHEET_ID = '1QcMw4i1FpPYmZOO1CQGLyawHtCfITVvC';
 const GID_CLIENTES = '1115158163';
 const GID_DETALLE = '508399462';
 const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=`;
 const DIAS_ALERTA = 15;
-const MESES_NUM = {
-  'Enero':1,'Febrero':2,'Marzo':3,'Abril':4,'Mayo':5,'Junio':6,
-  'Julio':7,'Agosto':8,'Septiembre':9,'Octubre':10,'Noviembre':11,'Diciembre':12
-};
+const MESES_NUM = { 'Enero':1,'Febrero':2,'Marzo':3,'Abril':4,'Mayo':5,'Junio':6,'Julio':7,'Agosto':8,'Septiembre':9,'Octubre':10,'Noviembre':11,'Diciembre':12 };
 
-// =============================================
-// ESTADO
-// =============================================
 let data = { clientes: [], detalle: [] };
 let filtroCliente = 'todos';
-let filtroDetalle = 'todos';
+let filtroSeg = 'todos';
 let searchCliente = '';
+let selectedClienteKey = null;
 
-// =============================================
-// NAVEGACIÓN
-// =============================================
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
+  const pages = ['resumen','clientes','seguimiento','vencimientos'];
   const items = document.querySelectorAll('.nav-item');
-  ['resumen','clientes','cobros','vencimientos'].forEach((p,i) => {
-    if(p === name) items[i]?.classList.add('active');
-  });
+  const idx = pages.indexOf(name);
+  if (idx >= 0) items[idx]?.classList.add('active');
 }
 
-// =============================================
-// CSV PARSER
-// =============================================
 function parseCSV(text) {
   const lines = text.trim().split('\n');
   const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
@@ -682,9 +399,6 @@ function parseCSV(text) {
   });
 }
 
-// =============================================
-// CARGAR DATOS
-// =============================================
 async function loadData() {
   try {
     document.getElementById('last-update').textContent = 'actualizando...';
@@ -702,256 +416,244 @@ async function loadData() {
   }
 }
 
-// =============================================
-// HELPERS
-// =============================================
 function getMesNum(mes) { return MESES_NUM[mes] || 0; }
 
 function getEstadoReal(mes) {
   const n = getMesNum(mes);
   const hoy = new Date();
   const mesActual = hoy.getMonth() + 1;
-  const diasRestantes = (n - mesActual) * 30 - hoy.getDate();
+  const diaActual = hoy.getDate();
   if (n < mesActual) return 'atendido';
   if (n === mesActual) return 'urgente';
-  if (diasRestantes <= DIAS_ALERTA) return 'urgente';
+  const diasHastaInicio = (n - mesActual - 1) * 30 + (30 - diaActual);
+  if (diasHastaInicio <= DIAS_ALERTA) return 'urgente';
   return 'proximo';
 }
 
 function initials(name) {
   if (!name) return '?';
-  return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+  return name.split(' ').slice(0,2).map(w => w[0]||'').join('').toUpperCase();
 }
 
-const COLORS = ['#E6EDF7,#1B4B8A','#E1F5EE,#0F6E56','#FAEEDA,#854F0B','#EEEDFE,#3C3489','#FBEAF0,#993556','#E6F1FB,#185FA5'];
+const AVATAR_COLORS = [
+  ['#E6EDF7','#1B4B8A'],['#E1F5EE','#0F6E56'],['#FAEEDA','#854F0B'],
+  ['#EEEDFE','#3C3489'],['#FBEAF0','#993556'],['#EAF3DE','#3B6D11']
+];
 function avatarColor(name) {
-  if (!name) return { bg: '#F2F4F7', fg: '#4A5568' };
-  const i = name.charCodeAt(0) % COLORS.length;
-  const [bg, fg] = COLORS[i].split(',');
-  return { bg, fg };
+  if (!name) return ['#F2F4F7','#4A5568'];
+  return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
 }
 
-function badgeEstado(estado) {
-  const map = { urgente: 'vencido', proximo: 'pendiente', atendido: 'cobrado' };
-  const label = { urgente: 'urgente', proximo: 'próximo', atendido: 'atendido' };
-  return `<span class="badge ${map[estado] || ''}">${label[estado] || estado}</span>`;
+function badgeHTML(estado) {
+  return `<span class="badge ${estado}">${estado}</span>`;
 }
 
-// =============================================
-// RENDER RESUMEN
-// =============================================
+function getClienteDetalle(nombre, direccion) {
+  return data.detalle.filter(d =>
+    d.nombre.trim().toLowerCase() === nombre.trim().toLowerCase() &&
+    d.direccion.trim().toLowerCase() === direccion.trim().toLowerCase()
+  );
+}
+
 function renderResumen() {
-  const hoy = new Date();
-  const mesActual = hoy.getMonth() + 1;
-
-  // Calcular estado real con lógica de 15 días
   const urgentes = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'urgente');
   const proximos = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'proximo');
+  const clientesUrgentes = new Set(urgentes.map(d => d.nombre+'|'+d.direccion));
+  const clientesProximos = new Set(proximos.map(d => d.nombre+'|'+d.direccion));
+  const totalMats = urgentes.reduce((a,d) => a + (parseFloat(d.cantidad)||0), 0);
 
-  // Clientes únicos urgentes
-  const clientesUrgentes = [...new Set(urgentes.map(d => d.nombre + '|' + d.direccion))];
-  const clientesProximos = [...new Set(proximos.map(d => d.nombre + '|' + d.direccion))];
-
-  // Total matafuegos urgentes
-  const totalMatsUrgentes = urgentes.reduce((a,d) => a + (parseFloat(d.cantidad)||0), 0);
+  document.getElementById('badge-seg').textContent = clientesUrgentes.size;
 
   document.getElementById('metrics-area').innerHTML = `
-    <div class="metric">
-      <div class="metric-label">Clientes urgentes</div>
-      <div class="metric-value danger">${clientesUrgentes.length}</div>
-      <div class="metric-sub">Llamar ahora</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Matafuegos urgentes</div>
-      <div class="metric-value danger">${Math.round(totalMatsUrgentes)}</div>
-      <div class="metric-sub">Por recargar</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Próximos 30 días</div>
-      <div class="metric-value warning">${clientesProximos.length}</div>
-      <div class="metric-sub">Clientes</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Total cartera</div>
-      <div class="metric-value" style="color:var(--naranja)">${data.clientes.length}</div>
-      <div class="metric-sub">Clientes activos</div>
-    </div>
+    <div class="metric"><div class="metric-label">Clientes urgentes</div><div class="metric-value danger">${clientesUrgentes.size}</div><div class="metric-sub">Llamar ahora</div></div>
+    <div class="metric"><div class="metric-label">Matafuegos urgentes</div><div class="metric-value danger">${Math.round(totalMats)}</div><div class="metric-sub">Por recargar</div></div>
+    <div class="metric"><div class="metric-label">Próximos</div><div class="metric-value warning">${clientesProximos.size}</div><div class="metric-sub">Resto del año</div></div>
+    <div class="metric"><div class="metric-label">Total cartera</div><div class="metric-value primary">${data.clientes.length}</div><div class="metric-sub">Clientes activos</div></div>
   `;
 
-  // Alert banner
   const alertArea = document.getElementById('alert-area');
-  if (clientesUrgentes.length > 0) {
-    alertArea.innerHTML = `<div class="alert-banner">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Tenés <strong>${clientesUrgentes.length} clientes urgentes</strong> con <strong>${Math.round(totalMatsUrgentes)} matafuegos</strong> por recargar. ¡Llamalos antes que la competencia!
-    </div>`;
-  } else {
-    alertArea.innerHTML = '';
-  }
+  alertArea.innerHTML = clientesUrgentes.size > 0 ? `<div class="alert-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Tenés <strong>${clientesUrgentes.size} clientes urgentes</strong> con <strong>${Math.round(totalMats)} matafuegos</strong> por recargar. ¡Llamalos antes que la competencia!
+  </div>` : '';
 
-  // Top urgentes por zona
   const porZona = {};
-  urgentes.forEach(d => {
-    porZona[d.zona] = (porZona[d.zona] || 0) + 1;
-  });
+  urgentes.forEach(d => { porZona[d.zona] = (porZona[d.zona]||0) + (parseFloat(d.cantidad)||0); });
   const zonasSorted = Object.entries(porZona).sort((a,b) => b[1]-a[1]).slice(0,5);
-
-  document.getElementById('resumen-vencidos').innerHTML = zonasSorted.length ? `
-    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      ${zonasSorted.map(([zona, cant]) => `
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:11px 16px;font-weight:500;">${zona}</td>
-          <td style="padding:11px 16px;color:var(--text3);">${cant} matafuegos</td>
-          <td style="padding:11px 16px;"><span class="badge vencido">urgente</span></td>
-        </tr>`).join('')}
+  document.getElementById('resumen-zonas').innerHTML = zonasSorted.length ?
+    `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+      ${zonasSorted.map(([z,c]) => `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px 14px;font-weight:500;">${z}</td>
+        <td style="padding:10px 14px;color:var(--text2);">${Math.round(c)} mat.</td>
+        <td style="padding:10px 14px;">${badgeHTML('urgente')}</td>
+      </tr>`).join('')}
     </table>` : `<div class="empty">Sin urgentes 🎉</div>`;
 
-  // Próximos vencimientos por mes
   const porMes = {};
   data.detalle.forEach(d => {
-    const estado = getEstadoReal(d.mes_vencimiento);
-    if (estado === 'proximo') {
-      porMes[d.mes_vencimiento] = (porMes[d.mes_vencimiento] || 0) + 1;
+    if (getEstadoReal(d.mes_vencimiento) === 'proximo') {
+      porMes[d.mes_vencimiento] = (porMes[d.mes_vencimiento]||0) + (parseFloat(d.cantidad)||0);
     }
   });
-  const mesesSorted = Object.entries(porMes).sort((a,b) => getMesNum(a[0]) - getMesNum(b[0])).slice(0,5);
-
-  document.getElementById('resumen-vencimientos').innerHTML = mesesSorted.length ? `
-    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      ${mesesSorted.map(([mes, cant]) => `
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:11px 16px;font-weight:500;">${mes}</td>
-          <td style="padding:11px 16px;color:var(--text3);">${cant} matafuegos</td>
-          <td style="padding:11px 16px;"><span class="badge pendiente">próximo</span></td>
-        </tr>`).join('')}
-    </table>` : `<div class="empty">Sin próximos vencimientos</div>`;
+  const mesesSorted = Object.entries(porMes).sort((a,b) => getMesNum(a[0])-getMesNum(b[0])).slice(0,5);
+  document.getElementById('resumen-meses').innerHTML = mesesSorted.length ?
+    `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+      ${mesesSorted.map(([m,c]) => `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px 14px;font-weight:500;">${m}</td>
+        <td style="padding:10px 14px;color:var(--text2);">${Math.round(c)} mat.</td>
+        <td style="padding:10px 14px;">${badgeHTML('proximo')}</td>
+      </tr>`).join('')}
+    </table>` : `<div class="empty">Sin próximos</div>`;
 }
 
-// =============================================
-// RENDER CLIENTES
-// =============================================
 function renderClientes() {
   let lista = data.clientes;
-  if (searchCliente) lista = lista.filter(c => 
+  if (searchCliente) lista = lista.filter(c =>
     (c.Nombre||'').toLowerCase().includes(searchCliente.toLowerCase()) ||
     (c.Direccion||'').toLowerCase().includes(searchCliente.toLowerCase()) ||
     (c.zona||'').toLowerCase().includes(searchCliente.toLowerCase())
   );
   if (filtroCliente !== 'todos') lista = lista.filter(c => (c.zona||'') === filtroCliente);
-
   document.getElementById('clientes-count').textContent = `${lista.length} clientes`;
-
   const tbody = document.getElementById('tbody-clientes');
   if (!lista.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty">Sin resultados</div></td></tr>`; return; }
-
   tbody.innerHTML = lista.map(c => {
-    const { bg, fg } = avatarColor(c.Nombre);
-    const tel = c.Telefono && c.Telefono !== '' ? `<a href="tel:${c.Telefono}" style="color:var(--naranja)">${c.Telefono}</a>` : '<span style="color:var(--text3)">—</span>';
-    return `<tr>
+    const [bg, fg] = avatarColor(c.Nombre);
+    const key = (c.Nombre||'')+'|'+(c.Direccion||'');
+    const isSelected = key === selectedClienteKey;
+    return `<tr class="${isSelected?'selected':''}" onclick="selectCliente('${escStr(c.Nombre)}','${escStr(c.Direccion)}')">
       <td><div class="client-cell">
         <div class="avatar" style="background:${bg};color:${fg};">${initials(c.Nombre)}</div>
-        <div><div class="client-cell-name">${c.Nombre||''}</div><div class="client-cell-sub">${c.Referente||''}</div></div>
+        <div><div class="client-cell-name">${c.Nombre||''}</div><div class="client-cell-sub">${c.zona||''}</div></div>
       </div></td>
       <td class="td-muted">${c.Direccion||''}</td>
       <td class="td-muted">${c.zona||''}</td>
-      <td>${tel}</td>
-      <td class="td-muted" style="font-size:12px;">${c.CUIT||''}</td>
-      <td class="td-muted" style="font-size:12px;">${c.EMAIL||''}</td>
+      <td>${c.Telefono ? `<a href="tel:${c.Telefono}" style="color:var(--azul);text-decoration:none;" onclick="event.stopPropagation()">${c.Telefono}</a>` : '<span style="color:var(--text3)">—</span>'}</td>
+      <td class="td-muted">${c.Referente||'—'}</td>
+      <td class="td-mono">${c.CUIT||'—'}</td>
     </tr>`;
   }).join('');
 }
 
-// =============================================
-// RENDER COBROS (DETALLE POR ESTADO)
-// =============================================
-function renderCobros() {
+function escStr(s) { return (s||'').replace(/'/g,"\\'"); }
+
+function selectCliente(nombre, direccion) {
+  const key = nombre+'|'+direccion;
+  if (selectedClienteKey === key) {
+    selectedClienteKey = null;
+    document.getElementById('cliente-detail').innerHTML = '';
+    renderClientes();
+    return;
+  }
+  selectedClienteKey = key;
+  renderClientes();
+  const cliente = data.clientes.find(c => c.Nombre === nombre && c.Direccion === direccion);
+  const mats = getClienteDetalle(nombre, direccion);
+  const [bg, fg] = avatarColor(nombre);
+  document.getElementById('cliente-detail').innerHTML = `
+    <div class="detail-panel" style="position:relative;">
+      <span class="detail-close" onclick="selectCliente('${escStr(nombre)}','${escStr(direccion)}')">×</span>
+      <div class="detail-header">
+        <div class="avatar" style="width:42px;height:42px;font-size:14px;background:${bg};color:${fg};">${initials(nombre)}</div>
+        <div><div class="detail-title">${nombre}</div><div class="detail-subtitle">${direccion}</div></div>
+      </div>
+      <div class="detail-grid">
+        <div><div class="detail-field-label">Zona</div><div class="detail-field-value">${cliente?.zona||'—'}</div></div>
+        <div><div class="detail-field-label">Teléfono</div><div class="detail-field-value">${cliente?.Telefono ? `<a href="tel:${cliente.Telefono}" style="color:var(--azul)">${cliente.Telefono}</a>` : '—'}</div></div>
+        <div><div class="detail-field-label">Referente</div><div class="detail-field-value">${cliente?.Referente||'—'}</div></div>
+        <div><div class="detail-field-label">CUIT</div><div class="detail-field-value">${cliente?.CUIT||'—'}</div></div>
+        <div><div class="detail-field-label">Email</div><div class="detail-field-value">${cliente?.EMAIL||'—'}</div></div>
+      </div>
+      ${mats.length ? `<div class="detail-mats">
+        <div class="detail-mats-title">Matafuegos</div>
+        ${mats.map(m => `<div class="mat-row">
+          <div>
+            <span class="mat-tipo">${m.tipo||''} ${m.capacidad_kg||''}kg</span>
+            ${m.observaciones ? `<span style="font-size:11px;color:var(--text3);margin-left:6px;">${m.observaciones}</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="mat-cant">×${m.cantidad||''}</span>
+            ${badgeHTML(getEstadoReal(m.mes_vencimiento))}
+            <span style="font-size:11px;color:var(--text3);">${m.mes_vencimiento||''}</span>
+          </div>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>`;
+}
+
+function renderSeguimiento() {
   let lista = data.detalle.map(d => ({...d, estadoReal: getEstadoReal(d.mes_vencimiento)}));
-  if (filtroDetalle !== 'todos') lista = lista.filter(d => d.estadoReal === filtroDetalle);
-
-  const urgentes = lista.filter(d => d.estadoReal === 'urgente').length;
-  document.getElementById('cobros-count').textContent = `${lista.length} registros${urgentes ? ` · ${urgentes} urgentes` : ''}`;
-  document.getElementById('badge-cobros').textContent = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'urgente').length;
-
-  const tbody = document.getElementById('tbody-cobros');
+  if (filtroSeg !== 'todos') lista = lista.filter(d => d.estadoReal === filtroSeg);
+  lista.sort((a,b) => getMesNum(a.mes_vencimiento) - getMesNum(b.mes_vencimiento));
+  const urgentes = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'urgente');
+  document.getElementById('seg-count').textContent = `${lista.length} registros`;
+  document.getElementById('badge-seg').textContent = new Set(urgentes.map(d=>d.nombre+'|'+d.direccion)).size;
+  const tbody = document.getElementById('tbody-seg');
   if (!lista.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty">Sin resultados</div></td></tr>`; return; }
-
   tbody.innerHTML = lista.map(d => `
-    <tr>
+    <tr onclick="selectCliente('${escStr(d.nombre)}','${escStr(d.direccion)}');showPage('clientes')">
       <td style="font-weight:500;font-size:13px;">${d.nombre||''}</td>
       <td class="td-muted" style="font-size:12px;">${d.direccion||''}</td>
       <td class="td-muted">${d.zona||''}</td>
       <td class="td-mono">${d.tipo||''} ${d.capacidad_kg||''}kg × ${d.cantidad||''}</td>
       <td class="td-muted">${d.mes_vencimiento||''}</td>
-      <td>${badgeEstado(d.estadoReal)}</td>
-      <td class="td-muted" style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.observaciones||''}</td>
+      <td>${badgeHTML(d.estadoReal)}</td>
+      <td class="td-muted" style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${d.observaciones||''}">${d.observaciones||'—'}</td>
     </tr>`).join('');
 }
 
-// =============================================
-// RENDER VENCIMIENTOS
-// =============================================
 function renderVencimientos() {
-  const urgentes = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'urgente');
-  const proximos = data.detalle.filter(d => getEstadoReal(d.mes_vencimiento) === 'proximo');
-
-  // Group by mes
   const byMes = {};
-  [...urgentes, ...proximos].forEach(d => {
-    const key = d.mes_vencimiento;
-    if (!byMes[key]) byMes[key] = { mes: key, clientes: new Set(), mats: 0, estado: getEstadoReal(key) };
-    byMes[key].clientes.add(d.nombre + '|' + d.direccion);
-    byMes[key].mats += parseFloat(d.cantidad) || 0;
+  data.detalle.forEach(d => {
+    const est = getEstadoReal(d.mes_vencimiento);
+    if (est === 'atendido') return;
+    if (!byMes[d.mes_vencimiento]) byMes[d.mes_vencimiento] = { mes: d.mes_vencimiento, clientes: new Set(), mats: 0, estado: est };
+    byMes[d.mes_vencimiento].clientes.add(d.nombre+'|'+d.direccion);
+    byMes[d.mes_vencimiento].mats += parseFloat(d.cantidad)||0;
   });
-
-  const lista = Object.values(byMes).sort((a,b) => getMesNum(a.mes) - getMesNum(b.mes));
-  document.getElementById('badge-venc').textContent = urgentes.length > 0 ? [...new Set(urgentes.map(d => d.nombre+'|'+d.direccion))].length : 0;
+  const lista = Object.values(byMes).sort((a,b) => getMesNum(a.mes)-getMesNum(b.mes));
 
   const grid = document.getElementById('venc-grid');
-  if (!lista.length) { grid.innerHTML = `<div class="empty">Sin vencimientos próximos</div>`; return; }
-
-  grid.innerHTML = lista.map(v => {
-    const cls = v.estado === 'urgente' ? 'urgente' : 'proximo';
-    return `<div class="venc-item ${cls}">
+  grid.innerHTML = lista.length ? lista.map(v => `
+    <div class="venc-item ${v.estado}">
       <div>
         <div class="venc-name">${v.mes} 2026</div>
         <div class="venc-detail">${v.clientes.size} clientes · ${Math.round(v.mats)} matafuegos</div>
       </div>
       <div>
-        <div class="venc-days ${cls}">${v.estado === 'urgente' ? '🔴 Urgente' : '🟡 Próximo'}</div>
-        <div class="venc-fecha">Alerta: 16 de ${Object.keys(MESES_NUM)[getMesNum(v.mes)-2] || 'mes anterior'}</div>
+        <div class="venc-days ${v.estado}">${v.estado === 'urgente' ? 'Urgente' : 'Próximo'}</div>
+        <div class="venc-fecha">${badgeHTML(v.estado)}</div>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('') : `<div class="empty">Sin vencimientos próximos</div>`;
+
+  // Zonas progress
+  const porZona = {};
+  const totalPorZona = {};
+  data.detalle.forEach(d => {
+    const z = d.zona||'Sin zona';
+    totalPorZona[z] = (totalPorZona[z]||0) + 1;
+    if (getEstadoReal(d.mes_vencimiento) === 'urgente') porZona[z] = (porZona[z]||0) + 1;
+  });
+  const zonasTop = Object.entries(totalPorZona).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  document.getElementById('zonas-progress').innerHTML = `
+    <div class="card-title" style="margin-bottom:10px;font-size:13.5px;font-weight:600;">Urgentes por zona</div>
+    ${zonasTop.map(([z, total]) => {
+      const urg = porZona[z]||0;
+      const pct = Math.round(urg/total*100);
+      return `<div class="zona-card">
+        <div class="zona-header">
+          <span class="zona-name">${z}</span>
+          <span class="zona-count">${urg} urgentes de ${total}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;${pct>0?'background:var(--rojo)':''}"></div></div>
+      </div>`;
+    }).join('')}`;
 }
 
-// =============================================
-// FILTROS
-// =============================================
-function filterClientes(val) { searchCliente = val; renderClientes(); }
-
-function chipCliente(el, val) {
-  document.querySelectorAll('#chips-clientes .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  filtroCliente = val;
-  renderClientes();
-}
-
-function chipCobro(el, val) {
-  document.querySelectorAll('#chips-cobros .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  filtroDetalle = val;
-  renderCobros();
-}
-
-// =============================================
-// ZONAS PARA FILTRO
-// =============================================
 function buildZonaChips() {
   const zonas = [...new Set(data.clientes.map(c => c.zona).filter(Boolean))].sort();
   const container = document.getElementById('chips-clientes');
-  const existing = container.querySelectorAll('.chip');
-  // Remove all except first (Todos)
-  existing.forEach((c,i) => { if(i > 0) c.remove(); });
+  container.querySelectorAll('.chip:not(:first-child)').forEach(c => c.remove());
   zonas.forEach(z => {
     const chip = document.createElement('div');
     chip.className = 'chip';
@@ -961,21 +663,32 @@ function buildZonaChips() {
   });
 }
 
-// =============================================
-// RENDER ALL
-// =============================================
+function filterClientes(val) { searchCliente = val; renderClientes(); }
+
+function chipCliente(el, val) {
+  document.querySelectorAll('#chips-clientes .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroCliente = val;
+  renderClientes();
+}
+
+function chipSeg(el, val) {
+  document.querySelectorAll('#chips-seg .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroSeg = val;
+  renderSeguimiento();
+}
+
 function renderAll() {
   buildZonaChips();
   renderResumen();
   renderClientes();
-  renderCobros();
+  renderSeguimiento();
   renderVencimientos();
 }
 
-// =============================================
-// INIT
-// =============================================
 document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-AR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 loadData();
 </script>
 </body>
+</html>
